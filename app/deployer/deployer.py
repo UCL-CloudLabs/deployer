@@ -1,5 +1,6 @@
 import os
 import json
+from fabric.api import env, run, execute
 from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.resource.resources.models import DeploymentMode
@@ -72,7 +73,7 @@ class Deployer:
         parameters = {
             'sshKeyData': self.ssh_key,
             'vmName': vm_name,
-            'dnsLabelPrefix': 'aa1a'
+            'dnsLabelPrefix': vm_name
         }
         parameters = {k: {'value': v} for k, v in parameters.items()}
 
@@ -82,21 +83,42 @@ class Deployer:
             'parameters': parameters
         }
 
-
-    def deploy(self, vm_name):
+    def deploy(self, vm_name, username):
         '''
         Deploy machine with given parameters on Azure.
         '''
-        resource_group = '{}_RG'.format(vm_name)
+        resource_group = '{}-rg'.format(vm_name)
         client = self.create_client(resource_group)
         deployment_properties = self.set_deployment_properties(vm_name)
 
         deployment_async_operation = client.deployments.create_or_update(
             resource_group,
-            'azure-deployment-sample',
+            username,
             deployment_properties
         )
 
         deployment_async_operation.wait()
 
-        return "Deployed!"
+        host = "{}.westus.cloudapp.azure.com".format(vm_name)
+        weburl = "http://{}:5000".format(host)
+
+        def run_commands():
+            commands = [
+                'sudo apt-get install docker.io',
+                'git clone https://github.com/UCL-CloudLabs/Docker-sample.git',
+                'cd Docker-sample',
+                'sudo docker build -t hello-flask .',
+                'sudo docker run -p 5000:5000 hello-flask']
+            for command in commands:
+                print(command)
+                run(command)
+
+        env.key_filename = "~/.ssh/id_rsa"
+        env.host_string = 'azure@{}'.format(host)
+        execute(run_commands)
+
+        return ("Deployed! You can now SSH to it as "
+                "{}@{}.westus.cloudapp.azure.com. "
+                "Your website is deployed at {}.".format('azure',
+                                                         vm_name,
+                                                         weburl))
