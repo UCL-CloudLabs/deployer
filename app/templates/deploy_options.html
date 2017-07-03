@@ -1,0 +1,5 @@
+<form method="POST" action="/">
+    {{ form.csrf_token }}
+    {{ form.vm_name.label }} {{ form.vm_name(size=20) }}
+    <input type="submit" value="Deploy">
+</form>
