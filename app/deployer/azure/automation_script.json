@@ -4,7 +4,7 @@
   "parameters": {
     "adminUserName": {
       "type": "string",
-      "defaultValue": "azureSample",
+      "defaultValue": "azure",
       "metadata": {
         "description": "User name for the Virtual Machine."
       }
@@ -124,6 +124,32 @@
               "priority": 123,
               "direction": "Inbound"
             }
+          },
+          {
+              "name": "5000-web",
+              "properties": {
+                  "protocol": "TCP",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "5000",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 1010,
+                  "direction": "Inbound"
+              }
+          },
+          {
+              "name": "80-web",
+              "properties": {
+                  "protocol": "TCP",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 1020,
+                  "direction": "Inbound"
+              }
           }
         ]
       }
