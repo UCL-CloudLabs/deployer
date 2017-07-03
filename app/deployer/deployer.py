@@ -19,8 +19,8 @@ class Deployer:
         Load Azure's env vars from local environment.
         '''
         env = {}
-        for var in ['AZURE_TENANT_ID', 'AZURE_CLIENT_ID', 'AZURE_CLIENT_ID',
-                    'AZURE_SUBSCRIPTION_ID']:
+        for var in ['AZURE_TENANT_ID', 'AZURE_CLIENT_ID',
+                    'AZURE_CLIENT_SECRET', 'AZURE_SUBSCRIPTION_ID']:
             try:
                 env[var] = os.environ[var]
             except KeyError:
@@ -34,3 +34,9 @@ class Deployer:
         for loging in.
         '''
         return os.path.expanduser('~/.ssh/id_rsa.pub')
+
+    def deploy(self):
+        '''
+        Deploy machine with given parameters on Azure.
+        '''
+        return "Deploying... "
