@@ -1,4 +1,8 @@
 import os
+import json
+from azure.common.credentials import ServicePrincipalCredentials
+from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.resource.resources.models import DeploymentMode
 
 class Deployer:
     '''
@@ -33,10 +37,66 @@ class Deployer:
         User's default SSH keys. Needed to be able to configure the machine
         for loging in.
         '''
-        return os.path.expanduser('~/.ssh/id_rsa.pub')
+        with open(os.path.expanduser('~/.ssh/id_rsa.pub'), 'r') as f:
+            ssh_key = f.read()
+        return ssh_key
 
-    def deploy(self):
+    def create_client(self, resource_group):
+        '''
+        Creates an Azure client using SP credentials.
+        '''
+        credentials = ServicePrincipalCredentials(
+            client_id=self.env['AZURE_CLIENT_ID'],
+            secret=self.env['AZURE_CLIENT_SECRET'],
+            tenant=self.env['AZURE_TENANT_ID']
+        )
+
+        client = ResourceManagementClient(credentials,
+                                          self.env['AZURE_SUBSCRIPTION_ID'])
+
+        client.resource_groups.create_or_update(
+            resource_group,
+            {
+                'location':'westus'
+            }
+        )
+        return client
+
+    def set_deployment_properties(self, vm_name):
+        '''
+        Load automation script template and replace with user input data.
+        '''
+        with open('deployer/azure/automation_script.json', 'r') as f:
+            template = json.load(f)
+
+        parameters = {
+            'sshKeyData': self.ssh_key,
+            'vmName': vm_name,
+            'dnsLabelPrefix': 'aa1a'
+        }
+        parameters = {k: {'value': v} for k, v in parameters.items()}
+
+        return {
+            'mode': DeploymentMode.incremental,
+            'template': template,
+            'parameters': parameters
+        }
+
+
+    def deploy(self, vm_name):
         '''
         Deploy machine with given parameters on Azure.
         '''
-        return "Deploying... "
+        resource_group = '{}_RG'.format(vm_name)
+        client = self.create_client(resource_group)
+        deployment_properties = self.set_deployment_properties(vm_name)
+
+        deployment_async_operation = client.deployments.create_or_update(
+            resource_group,
+            'azure-deployment-sample',
+            deployment_properties
+        )
+
+        deployment_async_operation.wait()
+
+        return "Deployed!"
