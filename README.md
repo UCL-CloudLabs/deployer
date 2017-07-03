@@ -9,11 +9,14 @@ In order to run this PoC you'll need to:
 1. Make sure you have Python installed in your system.
 1. Install project's requirements:
     `pip install -r requirements`
-1. Set up the following env vars with relevant content:
-    * AZURE_TENANT_ID
+1. Set up the following env vars with relevant content from Azure's portal:
+    * AZURE_TENANT_ID 
     * AZURE_CLIENT_ID
     * AZURE_CLIENT_SECRET
     * AZURE_SUBSCRIPTION_ID
+1. Set up the following env vars for Flask WTForms' CSRF configuration:
+    * CSRF_SESSION_KEY
+    * CSRF_SECRET_KEY
 1. Run the flask app:
     ```bash
     cd Deployer
