@@ -1,10 +1,12 @@
-<form method="POST" action="">
-    {{ form.csrf_token }}
-    <p>
-    {{ form.vm_name.label }} {{ form.vm_name(size=20) }}
-    </p>
-    <p>
-    {{ form.username.label }} {{ form.username(size=20) }}
-    </p>
-    <input type="submit" value="Deploy">
-</form>
+<center>
+  <form method="POST" action="">
+      {{ form.csrf_token }}
+      <p>
+      {{ form.vm_name.label }} {{ form.vm_name(size=20) }}
+      </p>
+      <p>
+      {{ form.username.label }} {{ form.username(size=20) }}
+      </p>
+      <input type="submit" value="Deploy">
+  </form>
+</center>
