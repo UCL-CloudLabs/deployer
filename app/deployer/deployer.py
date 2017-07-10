@@ -32,8 +32,7 @@ class Deployer:
         need to save the rendered template on a tf file in the terraform
         folder.
         '''
-        # Build full path to Terraform template which is:
-        # deployer folder + terraform + terraform-main.tf_template
+        # Build full path to Terraform template
         template_path = os.path.sep.join(
                                 [self.tf_path, "terraform-main.tf_template"])
         # try:
@@ -73,16 +72,19 @@ class Deployer:
 
         return_code, stdout, stderr = self.tf.apply(capture_output=False)
 
-        print("RETURN CODE: {}".format(return_code))
-        # TODO Check return code before displaying OK message. Which are the
-        #      possible codes?
-        return ("Deployed! You can now SSH to it as "
-                "{}@{}.westus.cloudapp.azure.com. "
-                "Your website is deployed at."
-                "http://{}.ukwest.cloudapp.azure.com:5000".format(username,
-                                                                  dnsname,
-                                                                  dnsname))
 
+        if return_code == 0: # All went well
+            return ("Deployed! You can now SSH to it as "
+                    "{}@{}.ukwest.cloudapp.azure.com. "
+                    "Your website is deployed at."
+                    "http://{}.ukwest.cloudapp.azure.com:5000".format(username,
+                                                                      dnsname,
+                                                                      dnsname))
+        else:
+            return ("Something went wrong with the deployment: {}".format(
+                                                                        stderr
+                                                                        )
+                    )
 
 class Host:
     '''
