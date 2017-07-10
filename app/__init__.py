@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from .forms.DeployForm import DeployForm
 from .deployer.deployer import Deployer
 
@@ -15,24 +15,20 @@ def show_deploy_options():
     '''
     form = DeployForm()
     if form.validate_on_submit():
-        return redirect(url_for('deploy_vm',
-                                name=form.name.data,
-                                dnsname=form.dnsname.data,
-                                username=form.username.data,
-                                passwd=form.passwd.data,
-                                public_key=form.public_key.data))
+        # Code 307 needed so all browsers use HTTP POST
+        return redirect(url_for('deploy_vm'), code=307)
     return render_template('deploy_options.html', form=form)
 
-@app.route('/deploy/<name>/<dnsname>/<username>/<passwd>/<public_key>')
-def deploy_vm(name, dnsname, username, passwd, public_key):
+@app.route('/deploy', methods=['POST'])
+def deploy_vm():
     '''
     Deploy machine on Azure based on user info from deploy form.
     '''
     deployer = Deployer(app.instance_path)
     return render_template('deploy_vm.html',
                            deployer=deployer,
-                           name=name,
-                           dnsname=dnsname,
-                           username=username,
-                           passwd=passwd,
-                           public_key=public_key)
+                           name=request.form['name'],
+                           dnsname=request.form['dnsname'],
+                           username=request.form['username'],
+                           passwd=request.form['passwd'],
+                           public_key=request.form['public_key'])
