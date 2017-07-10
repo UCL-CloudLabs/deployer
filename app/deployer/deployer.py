@@ -1,124 +1,97 @@
 import os
-import json
-from fabric.api import env, run, execute
-from azure.common.credentials import ServicePrincipalCredentials
-from azure.mgmt.resource import ResourceManagementClient
-from azure.mgmt.resource.resources.models import DeploymentMode
+from python_terraform import Terraform
+from flask import render_template
+from jinja2 import TemplateNotFound
 
 class Deployer:
     '''
     Deploys a VM on an Azure subscription using a tenant ID and secret stored
-    on the machine running this app. The needed env vars can be found on
+    on the machine running this app. The needed variables can be found on
     Azure's portal:
      * AZURE_TENANT_ID: 'cloudlabs' Azure Active Directory tenant id.
      * AZURE_CLIENT_ID: 'cloudlabs' Azure AD Application Client ID.
      * AZURE_CLIENT_ID: with your Azure AD Application Secret.
      * AZURE_SUBSCRIPTION_ID: UCL RSDG's Azure subscription ID.
+    TODO: For now these are stored in variables.tf, but they'll be moved to an
+    Azure key vault.
     '''
-    def __init__(self):
-        self.env = self.load_env_vars()
-        self.ssh_key = self.load_ssh_key()
-
-    def load_env_vars(self):
+    def __init__(self, instance_path):
         '''
-        Load Azure's env vars from local environment.
+        Find app's root path based in instance path.
+        Set python-terraform's instance with appropriate full path working dir.
         '''
-        env = {}
-        for var in ['AZURE_TENANT_ID', 'AZURE_CLIENT_ID',
-                    'AZURE_CLIENT_SECRET', 'AZURE_SUBSCRIPTION_ID']:
-            try:
-                env[var] = os.environ[var]
-            except KeyError:
-                print("Environmental variable {} not found. Please set it up "
-                      "with the relevant value found in Azure's portal.")
-        return env
+        self.app_path = os.path.sep.join(
+                            instance_path.split(os.path.sep)[:-1])
+        self.tf_path = os.path.sep.join(
+                            [self.app_path, "app", "deployer", "terraform"])
+        self.tf = Terraform(working_dir=self.tf_path)
 
-    def load_ssh_key(self):
+    def _render(self, host):
         '''
-        User's default SSH keys. Needed to be able to configure the machine
-        for loging in.
+        Terraform's only possible target is a folder and not a file. So we
+        need to save the rendered template on a tf file in the terraform
+        folder.
         '''
-        with open(os.path.expanduser('~/.ssh/id_rsa.pub'), 'r') as f:
-            ssh_key = f.read()
-        return ssh_key
+        # Build full path to Terraform template which is:
+        # deployer folder + terraform + terraform-main.tf_template
+        template_path = os.path.sep.join(
+                                [self.tf_path, "terraform-main.tf_template"])
+        # try:
+        rendered_template = render_template("terraform-main.tf_template", host=host)
+        # except TemplateNotFound:
+        #     print("Template terraform-main.tf_template not found in {}.".format(template_path))
+        #     return
+        #     # TODO raise?
 
-    def create_client(self, resource_group):
+        print(rendered_template)
+
+        # try:
+        with open("{}/terraform.tf".format(self.tf_path), "w") as f:
+                f.write(rendered_template)
+        # except:
+        #     # TODO: replace with logging and maybe raise?
+        #     print("Error writing terraform's config file.")
+
+
+    def deploy(self, name=None, dnsname=None, username=None, passwd=None,
+                 public_key=None):
         '''
-        Creates an Azure client using SP credentials.
+        Renders the Terraform template with given user input.
+        Then runs "terrraform apply" with appropriate template and displays
+        message when it's done.
         '''
-        credentials = ServicePrincipalCredentials(
-            client_id=self.env['AZURE_CLIENT_ID'],
-            secret=self.env['AZURE_CLIENT_SECRET'],
-            tenant=self.env['AZURE_TENANT_ID']
-        )
+        # TODO: Pass the host and not each variable.
+        # TODO: Do something with the things apply returns.
+        #       Any exceptions raised by python_terraform?
+        host = Host(name=name, dnsname=dnsname, username=username,
+                    passwd=passwd, public_key=public_key)
+        # try:
+        self._render(host)
+        # except:
+        #     # TODO: logging
+        #     return "Error when rendering Terraform template."
 
-        client = ResourceManagementClient(credentials,
-                                          self.env['AZURE_SUBSCRIPTION_ID'])
+        return_code, stdout, stderr = self.tf.apply(capture_output=False)
 
-        client.resource_groups.create_or_update(
-            resource_group,
-            {
-                'location':'westus'
-            }
-        )
-        return client
-
-    def set_deployment_properties(self, vm_name):
-        '''
-        Load automation script template and replace with user input data.
-        '''
-        with open('deployer/azure/automation_script.json', 'r') as f:
-            template = json.load(f)
-
-        parameters = {
-            'sshKeyData': self.ssh_key,
-            'vmName': vm_name,
-            'dnsLabelPrefix': vm_name
-        }
-        parameters = {k: {'value': v} for k, v in parameters.items()}
-
-        return {
-            'mode': DeploymentMode.incremental,
-            'template': template,
-            'parameters': parameters
-        }
-
-    def deploy(self, vm_name, username):
-        '''
-        Deploy machine with given parameters on Azure.
-        '''
-        resource_group = '{}-rg'.format(vm_name)
-        client = self.create_client(resource_group)
-        deployment_properties = self.set_deployment_properties(vm_name)
-
-        deployment_async_operation = client.deployments.create_or_update(
-            resource_group,
-            username,
-            deployment_properties
-        )
-
-        deployment_async_operation.wait()
-
-        host = "{}.westus.cloudapp.azure.com".format(vm_name)
-        weburl = "http://{}:5000".format(host)
-
-        def run_commands():
-            commands = [
-                'sudo apt-get install docker.io',
-                'git clone https://github.com/UCL-CloudLabs/Docker-sample.git',
-                'cd Docker-sample',
-                'sudo docker build -t hello-flask .',
-                'sudo docker run -p 5000:5000 hello-flask']
-            for command in commands:
-                print(command)
-                run(command)
-
-        env.key_filename = "~/.ssh/id_rsa"
-        env.host_string = 'azure@{}'.format(host)
-        execute(run_commands)
-
+        print("RETURN CODE: {}".format(return_code))
+        # TODO Check return code before displaying OK message. Which are the
+        #      possible codes?
         return ("Deployed! You can now SSH to it as "
                 "{}@{}.westus.cloudapp.azure.com. "
-                "Your website is deployed at {}.".format('azure',
-                                                         vm_name,
-                                                         weburl))
+                "Your website is deployed at."
+                "http://{}.ukwest.cloudapp.azure.com:5000".format(username,
+                                                                  dnsname,
+                                                                  dnsname))
+
+
+class Host:
+    '''
+    Contains all variables introduced by the user used to create a VM in Azure.
+    '''
+    def __init__(self, name=None, dnsname=None, username=None, passwd=None,
+                 public_key=None):
+        self.name = name
+        self.dnsname = dnsname
+        self.username = username
+        self.passwd = passwd
+        self.public_key = public_key

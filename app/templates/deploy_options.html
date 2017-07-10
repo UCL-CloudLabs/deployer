@@ -2,10 +2,19 @@
   <form method="POST" action="">
       {{ form.csrf_token }}
       <p>
-      {{ form.vm_name.label }} {{ form.vm_name(size=20) }}
+      {{ form.name.label }} {{ form.name(size=20) }}
+      </p>
+      <p>
+      {{ form.dnsname.label }} {{ form.dnsname(size=20) }}
       </p>
       <p>
       {{ form.username.label }} {{ form.username(size=20) }}
+      </p>
+      <p>
+      {{ form.passwd.label }} {{ form.passwd(size=20) }}
+      </p>
+      <p>
+      {{ form.public_key.label }} {{ form.public_key(size=20) }}
       </p>
       <input type="submit" value="Deploy">
   </form>

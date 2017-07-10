@@ -16,17 +16,23 @@ def show_deploy_options():
     form = DeployForm()
     if form.validate_on_submit():
         return redirect(url_for('deploy_vm',
-                                vm_name=form.vm_name.data,
-                                username=form.username.data))
+                                name=form.name.data,
+                                dnsname=form.dnsname.data,
+                                username=form.username.data,
+                                passwd=form.passwd.data,
+                                public_key=form.public_key.data))
     return render_template('deploy_options.html', form=form)
 
-@app.route('/deploy/<vm_name>/<username>')
-def deploy_vm(vm_name, username):
+@app.route('/deploy/<name>/<dnsname>/<username>/<passwd>/<public_key>')
+def deploy_vm(name, dnsname, username, passwd, public_key):
     '''
     Deploy machine on Azure based on user info from deploy form.
     '''
-    deployer = Deployer()
+    deployer = Deployer(app.instance_path)
     return render_template('deploy_vm.html',
                            deployer=deployer,
-                           vm_name=vm_name,
-                           username=username)
+                           name=name,
+                           dnsname=dnsname,
+                           username=username,
+                           passwd=passwd,
+                           public_key=public_key)

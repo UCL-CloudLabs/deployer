@@ -8,7 +8,7 @@ provider "azurerm" {
 
 # create a resource group if it doesn't exist
 resource "azurerm_resource_group" "rg" {
-    name = "{{host.name}}rg"
+    name = "testraquel123456rg"
     location = "ukwest"
 }
 
@@ -29,35 +29,13 @@ resource "azurerm_subnet" "subnet" {
     #network_security_group_id = "${azurerm_network_security_group.nsg.id}"
 }
 
-#resource "azurerm_network_security_group" "nsg" {
-#  name                = "securityGroup"
-#  location            = "ukwest"
-#  resource_group_name = "${azurerm_resource_group.rg.name}"
-
-#  security_rule {
-#    name                       = "HTTP5000"
-#    priority                   = 1010
-#    direction                  = "Inbound"
-#    access                     = "Allow"
-#    protocol                   = "Tcp"
-#    source_port_range          = "*"
-#    destination_port_range     = "5000"
-#    source_address_prefix      = "*"
-#    destination_address_prefix = "*"
-#  }
-#
-#  tags {
-#    environment = "staging"
-#  }
-#}
-
 # create public IPs
 resource "azurerm_public_ip" "ip" {
     name = "tfip"
     location = "ukwest"
     resource_group_name = "${azurerm_resource_group.rg.name}"
     public_ip_address_allocation = "dynamic"
-    domain_name_label = "{{host.dnsname}}"
+    domain_name_label = "testraquel123456"
 
     tags {
         environment = "staging"
@@ -81,7 +59,7 @@ resource "azurerm_network_interface" "ni" {
 
 # create storage account
 resource "azurerm_storage_account" "storage" {
-    name = "{{host.name}}storage"
+    name = "testraquel123456storage"
     resource_group_name = "${azurerm_resource_group.rg.name}"
     location = "ukwest"
     account_type = "Standard_LRS"
@@ -104,7 +82,7 @@ resource "azurerm_storage_container" "storagecont" {
 
 # create virtual machine
 resource "azurerm_virtual_machine" "vm" {
-    name = "{{host.name}}vm"
+    name = "testraquel123456vm"
     location = "ukwest"
     resource_group_name = "${azurerm_resource_group.rg.name}"
     network_interface_ids = ["${azurerm_network_interface.ni.id}"]
@@ -125,26 +103,22 @@ resource "azurerm_virtual_machine" "vm" {
     }
 
     os_profile {
-        computer_name = "{{host.name}}"
-        admin_username = "{{host.username}}"
-        admin_password = "{{host.passwd}}"
+        computer_name = "testraquel123456"
+        admin_username = "testraquel123456"
+        admin_password = "Testraquel123456"
     }
 
     os_profile_linux_config {
       disable_password_authentication = false
       ssh_keys = [{
-        path     = "/home/testadmin/.ssh/authorized_keys"
+        path     = "/home/testraquel123456/.ssh/authorized_keys"
         key_data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDIjSk9W1iu8Nq01i0Ng/U4L+nFPHpU44czXqnY8I9+szOo8ZpbvaoC52hVFQRCmsGTiPhLJYzhUR90DGyXDC9+1tpybHrDO4VvabuLnae/8I2QkGbbrDPm3iNFgmx01N4odUwAn7bi5S49e0fSqnzJkNDNUXf+wtIpvgxxXM6rMBr3nWR/OYHvo1/ZGaFbtS9wKvQHn7fP8OmiJnCnfGCJfT2UylyRAjKb5D9PnrRSgsrWBbUGrwq7svuG+tNtRI+w97f//evKubyUGBNeaOSbtlhu7pPWDtvyCcYAWaRcAusdS4C9KClX/y/gvg4Zyrlh3/jSwLsY1gpZlHHWFjjSKpQz25FvGNJbGkYaVSzfHDUN3VSJZgJO5oX8W0tsYbDuKSBSADSP/D3BjJD11RhUXv0DSB9mhdXbemyVdS9QkBdBhJLxzQ8AVYwiXmTJRP99Y5AS0+UQJqO40u/aWkevUziWDfUj1uB+vylQDmg7qDDcG6ZDMX7EAcmRLhII+U/rc0QVRPQqYB+HC1fWKqyans/D0wgMvmfvjz0aohg97wbvQoldeZHbi/7wLHFFKtlDGiEJYPDR4iOHQQ4kG5ZRv5CYMI88km9rE9Ode2KqIKFRRgFfTJFzE52EpHMBcWcggK0Ua6+vaZ8SfKPg76JFnOluCIGQz+Z3BVDWR89yTQ== r.alegre@ucl.ac.uk"
       }]
     }
 
-#    provisioner "local-exec" {
-#        command = "git clone https://github.com/UCL-CloudLabs/Docker-sample.git"
-#    }
-
     connection {
-        host = "{{host.dnsname}}.ukwest.cloudapp.azure.com"
-        user = "testadmin"
+        host = "testraquel123456.ukwest.cloudapp.azure.com"
+        user = "testraquel123456"
         type = "ssh"
         private_key = "${file("~/.ssh/id_rsa_unencrypt")}"
         timeout = "1m"
@@ -158,10 +132,8 @@ resource "azurerm_virtual_machine" "vm" {
           "git clone https://github.com/UCL-CloudLabs/Docker-sample.git",
           "cd Docker-sample",
           "sudo docker build -t hello-flask .",
-          "sudo docker -d run -p 5000:5000 hello-flask"
+          "sudo docker run -d -p 5000:5000 hello-flask"
         ]
-
-
     }
 
     tags {
