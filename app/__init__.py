@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request
-from .forms.DeployForm import DeployForm
+from .forms.deploy_form import DeployForm
 from .deployer.deployer import Deployer
 
 # Create Flask app
