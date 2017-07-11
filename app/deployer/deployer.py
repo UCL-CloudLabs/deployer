@@ -55,23 +55,20 @@ class Deployer:
         #     # TODO: replace with logging and maybe raise?
         #     print("Error writing terraform's config file.")
 
-    def deploy(self, name=None, dnsname=None, username=None, passwd=None,
-               public_key=None):
+    def deploy(self, host):
         '''
         Renders the Terraform template with given user input.
         Then runs "terrraform apply" with appropriate template and displays
         message when it's done.
         '''
-        # TODO: Do something with the things apply returns.
-        #       Any exceptions raised by python_terraform?
-        host = Host(name=name, dnsname=dnsname, username=username,
-                    passwd=passwd, public_key=public_key)
         # try:
         self._render(host)
         # except:
         #     # TODO: logging
         #     return "Error when rendering Terraform template."
 
+        # TODO: Do something with the things apply returns.
+        #       Any exceptions raised by python_terraform?
         return_code, stdout, stderr = self.tf.apply(capture_output=False)
 
         if return_code == 0:  # All went well
