@@ -1,0 +1,27 @@
+sudo: false
+
+language: python
+
+matrix:
+  include:
+    - python: '2.7'
+    - python: '3.6'
+    - python: '3.6'
+      env: PEP8=1
+
+install:
+  - |
+    # Check if this is the PEP8 test instance and install pycodestyle
+    pip install --user -r requirements.txt
+    if ! [ -z "$PEP8" ]; then
+       pip install --user pycodestyle
+    fi
+
+script:
+  - |
+    # Check if this is the PEP8 test instance and run pep8
+    if [ -z "$PEP8" ]; then
+      py.test
+    else
+      pycodestyle ./
+    fi
