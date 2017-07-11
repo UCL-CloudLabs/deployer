@@ -9,7 +9,7 @@ In order to run this PoC you'll need to:
 1. Make sure you have Python3 installed in your system.
 1. Install project's requirements:
     `pip install -r requirements.txt`
-1. You'll need `variables.tf`, a Terraform file containing the values of the cloud provider secrets needed to access your subscription. Ask for a copy to one of the maintainers or see [Terraform's sample for AWS](https://www.terraform.io/intro/getting-started/variables.html#using-variables-in-configuration) to make your own. You'll need to place this file in `Deployer/app/deployer/terraform/variables.tf`.
+1. You'll need `variables.tf`, a Terraform file containing the values of the cloud provider secrets needed to access your subscription. There's a template of this file in [app/deployer/terraform/samples](app/deployer/terraform/samples). You'll need to place this file once it's filled in with appropriate details in `Deployer/app/deployer/terraform/variables.tf`.
 1. Set up the following env vars for Flask WTForms' CSRF configuration with a value of your choice:
     * CSRF_SESSION_KEY
     * CSRF_SECRET_KEY
