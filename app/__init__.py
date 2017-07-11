@@ -32,7 +32,8 @@ def deploy_vm():
                 dnsname=request.form['dnsname'],
                 username=request.form['username'],
                 passwd=request.form['passwd'],
-                public_key=request.form['public_key'])
+                public_key=request.form['public_key'],
+                private_key_path=request.form['private_key_path'])
     return render_template('deploy_vm.html',
                            deployer=deployer,
                            host=host)

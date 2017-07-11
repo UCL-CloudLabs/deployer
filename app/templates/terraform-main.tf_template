@@ -112,7 +112,7 @@ resource "azurerm_virtual_machine" "vm" {
       disable_password_authentication = false
       ssh_keys = [{
         path     = "/home/{{host.username}}/.ssh/authorized_keys"
-        key_data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDIjSk9W1iu8Nq01i0Ng/U4L+nFPHpU44czXqnY8I9+szOo8ZpbvaoC52hVFQRCmsGTiPhLJYzhUR90DGyXDC9+1tpybHrDO4VvabuLnae/8I2QkGbbrDPm3iNFgmx01N4odUwAn7bi5S49e0fSqnzJkNDNUXf+wtIpvgxxXM6rMBr3nWR/OYHvo1/ZGaFbtS9wKvQHn7fP8OmiJnCnfGCJfT2UylyRAjKb5D9PnrRSgsrWBbUGrwq7svuG+tNtRI+w97f//evKubyUGBNeaOSbtlhu7pPWDtvyCcYAWaRcAusdS4C9KClX/y/gvg4Zyrlh3/jSwLsY1gpZlHHWFjjSKpQz25FvGNJbGkYaVSzfHDUN3VSJZgJO5oX8W0tsYbDuKSBSADSP/D3BjJD11RhUXv0DSB9mhdXbemyVdS9QkBdBhJLxzQ8AVYwiXmTJRP99Y5AS0+UQJqO40u/aWkevUziWDfUj1uB+vylQDmg7qDDcG6ZDMX7EAcmRLhII+U/rc0QVRPQqYB+HC1fWKqyans/D0wgMvmfvjz0aohg97wbvQoldeZHbi/7wLHFFKtlDGiEJYPDR4iOHQQ4kG5ZRv5CYMI88km9rE9Ode2KqIKFRRgFfTJFzE52EpHMBcWcggK0Ua6+vaZ8SfKPg76JFnOluCIGQz+Z3BVDWR89yTQ== r.alegre@ucl.ac.uk"
+        key_data = "{{host.public_key}}"
       }]
     }
 
@@ -120,7 +120,7 @@ resource "azurerm_virtual_machine" "vm" {
         host = "{{host.dnsname}}.ukwest.cloudapp.azure.com"
         user = "{{host.username}}"
         type = "ssh"
-        private_key = "${file("~/.ssh/id_rsa_unencrypt")}"
+        private_key = "${file("{{host.private_key_path}}")}"
         timeout = "1m"
         agent = true
     }
