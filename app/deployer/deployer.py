@@ -22,9 +22,8 @@ class Deployer:
         Find app's root path based in instance path.
         Set python-terraform's instance with appropriate full path working dir.
         '''
-        self.app_path = os.path.sep.join(
-                            instance_path.split(os.path.sep)[:-1])
-        self.tf_path = os.path.sep.join(
+        self.app_path = os.path.join(instance_path.split(os.path.sep)[:-1])
+        self.tf_path = os.path.join(
                             [self.app_path, "app", "deployer", "terraform"])
         self.tf = Terraform(working_dir=self.tf_path)
 
@@ -75,9 +74,10 @@ class Deployer:
             return ("Deployed! You can now SSH to it as "
                     "{}@{}.ukwest.cloudapp.azure.com. "
                     "Your website is deployed at."
-                    "http://{}.ukwest.cloudapp.azure.com:5000".format(username,
-                                                                      dnsname,
-                                                                      dnsname))
+                    "http://{}.ukwest.cloudapp.azure.com:5000".format(
+                                                                host.username,
+                                                                host.dnsname,
+                                                                host.dnsname))
         else:
             return ("Something went wrong with the deployment: {}".format(
                                                                         stderr
