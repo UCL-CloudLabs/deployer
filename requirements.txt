@@ -1,0 +1,4 @@
+flask
+Flask-WTF
+azure
+python-terraform
