@@ -1,8 +1,8 @@
-import os
 from .host import Host
 from python_terraform import Terraform
 from flask import render_template
 from jinja2 import TemplateNotFound
+from pathlib import Path
 
 
 class Deployer:
@@ -17,14 +17,13 @@ class Deployer:
     TODO: For now these are stored in variables.tf, but they'll be moved to an
     Azure key vault.
     '''
-    def __init__(self, instance_path):
+    def __init__(self, app_path):
         '''
-        Find app's root path based in instance path.
         Set python-terraform's instance with appropriate full path working dir.
         '''
-        self.app_path = os.path.sep.join(instance_path.split(os.path.sep)[:-1])
-        self.tf_path = os.path.sep.join(
-                            [self.app_path, "app", "deployer", "terraform"])
+        p = Path(app_path, "deployer", "terraform")
+        self.tf_path = p.absolute()
+        print(self.tf_path)
         self.tf = Terraform(working_dir=self.tf_path)
 
     def _render(self, host):
@@ -34,8 +33,7 @@ class Deployer:
         folder.
         '''
         # Build full path to Terraform template
-        template_path = os.path.sep.join(
-                                [self.tf_path, "terraform-main.tf_template"])
+        template_path = Path(self.tf_path, "terraform-main.tf_template")
         # try:
         rendered_template = render_template("terraform-main.tf_template",
                                             host=host)

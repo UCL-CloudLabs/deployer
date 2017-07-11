@@ -27,7 +27,7 @@ def deploy_vm():
     '''
     Deploy host on Azure based on user input from deploy form.
     '''
-    deployer = Deployer(app.instance_path)
+    deployer = Deployer(app.root_path)
     host = Host(name=request.form['name'],
                 dnsname=request.form['dnsname'],
                 username=request.form['username'],
