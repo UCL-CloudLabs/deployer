@@ -59,7 +59,6 @@ class Deployer:
         Then runs "terrraform apply" with appropriate template and displays
         message when it's done.
         '''
-        # TODO: Pass the host and not each variable.
         # TODO: Do something with the things apply returns.
         #       Any exceptions raised by python_terraform?
         host = Host(name=name, dnsname=dnsname, username=username,

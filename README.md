@@ -6,15 +6,11 @@ web form .
 In order to run this PoC you'll need to:
 
 1. Clone this repo.
-1. Make sure you have Python installed in your system.
+1. Make sure you have Python3 installed in your system.
 1. Install project's requirements:
     `pip install -r requirements`
-1. Set up the following env vars with relevant content from Azure's portal:
-    * AZURE_TENANT_ID 
-    * AZURE_CLIENT_ID
-    * AZURE_CLIENT_SECRET
-    * AZURE_SUBSCRIPTION_ID
-1. Set up the following env vars for Flask WTForms' CSRF configuration:
+1. You'll need `variables.tf`, a Terraform file containing the values of the cloud provider secrets needed to access your subscription. See [Terraform's sample for AWS](https://www.terraform.io/intro/getting-started/variables.html#using-variables-in-configuration).
+1. Set up the following env vars for Flask WTForms' CSRF configuration to a value of your choice:
     * CSRF_SESSION_KEY
     * CSRF_SECRET_KEY
 1. Run the flask app:
@@ -23,4 +19,5 @@ In order to run this PoC you'll need to:
     export FLASK_APP=run.py
     flask run
     ```
-1. Open browser on URL returned by previous command.
+1. Open browser on URL returned by previous command and input parameters to deploy a sample webapp on your cloud subscription.
+1. The details to ssh into the machine and browse your website will appear after a successful deployment. 
