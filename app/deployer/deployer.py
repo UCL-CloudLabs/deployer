@@ -3,6 +3,7 @@ from python_terraform import Terraform
 from flask import render_template
 from jinja2 import TemplateNotFound
 
+
 class Deployer:
     '''
     Deploys a VM on an Azure subscription using a tenant ID and secret stored
@@ -36,9 +37,11 @@ class Deployer:
         template_path = os.path.sep.join(
                                 [self.tf_path, "terraform-main.tf_template"])
         # try:
-        rendered_template = render_template("terraform-main.tf_template", host=host)
+        rendered_template = render_template("terraform-main.tf_template",
+                                            host=host)
         # except TemplateNotFound:
-        #     print("Template terraform-main.tf_template not found in {}.".format(template_path))
+        #     print("Template terraform-main.tf_template not found in {}."
+        #               .format(template_path))
         #     return
         #     # TODO raise?
 
@@ -51,9 +54,8 @@ class Deployer:
         #     # TODO: replace with logging and maybe raise?
         #     print("Error writing terraform's config file.")
 
-
     def deploy(self, name=None, dnsname=None, username=None, passwd=None,
-                 public_key=None):
+               public_key=None):
         '''
         Renders the Terraform template with given user input.
         Then runs "terrraform apply" with appropriate template and displays
@@ -71,8 +73,7 @@ class Deployer:
 
         return_code, stdout, stderr = self.tf.apply(capture_output=False)
 
-
-        if return_code == 0: # All went well
+        if return_code == 0:  # All went well
             return ("Deployed! You can now SSH to it as "
                     "{}@{}.ukwest.cloudapp.azure.com. "
                     "Your website is deployed at."
@@ -84,6 +85,7 @@ class Deployer:
                                                                         stderr
                                                                         )
                     )
+
 
 class Host:
     '''

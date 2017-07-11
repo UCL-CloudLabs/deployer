@@ -8,6 +8,7 @@ app = Flask(__name__)
 # Configure Flask app
 app.config.from_object('config')
 
+
 @app.route('/', methods=['POST', 'GET'])
 def show_deploy_options():
     '''
@@ -18,6 +19,7 @@ def show_deploy_options():
         # Code 307 needed so all browsers use HTTP POST
         return redirect(url_for('deploy_vm'), code=307)
     return render_template('deploy_options.html', form=form)
+
 
 @app.route('/deploy', methods=['POST'])
 def deploy_vm():
