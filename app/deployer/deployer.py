@@ -33,11 +33,11 @@ class Deployer:
         need to save the rendered template on a tf file in the terraform
         folder.
         '''
-        # Build full path to Terraform template
-        template = Path(self.tf_path, "terraform-main.tf_template")
-
         # try:
-        rendered_template = render_template(template, host=host)
+        # Flask's render_template always looks for templates in app templates
+        # folder
+        rendered_template = render_template("terraform-main.tf_template",
+                                            host=host)
         # except TemplateNotFound:
         #     print("Template terraform-main.tf_template not found in {}."
         #               .format(template_path))
@@ -97,11 +97,12 @@ class Deployer:
         with open(tf_state) as f:
             tf_data = json.load(f)
         try:
-            resource_label = tf_data['modules'][0]['resources'].[resource]
+            resource_label = tf_data['modules'][0]['resources'][resource]
         except KeyError:
             print("Resource {} not found in Terraform state. The available"
                   "resources for destroying are {}.".format(
-                    ', '.join([r for r in tf_data['modules'][0]['resources'])))
+                    ', '.join([r for r in tf_data['modules'][0]['resources']]))
+                 )
             # TODO raise
             return
 
@@ -113,4 +114,18 @@ class Deployer:
             # TODO raise
             return ("Something went wrong when destroying {}: {}".format(
                                                                     resource,
-                                                                    stderr)
+                                                                    stderr))
+
+    def refresh(self):
+        '''
+        User Terraform to update the current state file against real resources.
+        '''
+        # First refresh state
+        return_code, stdout, stderr = self.tf.refresh()
+
+        if return_code == 0:  # All went well
+            return ("Local Terraform state successfully updated.")
+        else:
+            # TODO raise
+            return ("Something went wrong when updating state: {}".format(
+                                                                       stderr))
