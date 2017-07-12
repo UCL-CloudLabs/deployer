@@ -10,9 +10,9 @@ matrix:
       env: PEP8=1
 
 install:
+  - pip install --user -r requirements.txt
   - |
     # Check if this is the PEP8 test instance and install pycodestyle
-    pip install --user -r requirements.txt
     if ! [ -z "$PEP8" ]; then
        pip install --user pycodestyle
     fi
