@@ -101,8 +101,7 @@ class Deployer:
         except KeyError:
             print("Resource {} not found in Terraform state. The available"
                   "resources for destroying are {}.".format(
-                    ', '.join([r for r in tf_data['modules'][0]['resources']]))
-                 )
+                   ', '.join([r for r in tf_data['modules'][0]['resources']])))
             # TODO raise
             return
 
