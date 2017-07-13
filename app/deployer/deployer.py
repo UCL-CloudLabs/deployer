@@ -18,11 +18,11 @@ class Deployer:
     TODO: For now these are stored in variables.tf, but they'll be moved to an
     Azure key vault.
     '''
-    def __init__(self, app_path):
+    def __init__(self, app_path=Path.cwd()):
         '''
         Set python-terraform's instance with appropriate full path working dir.
         '''
-        p = Path(app_path, "deployer", "terraform")
+        p = Path(app_path, "app", "deployer", "terraform")
         self.tf_path = p.absolute()
         print(self.tf_path)
         self.tf = Terraform(working_dir=self.tf_path)
