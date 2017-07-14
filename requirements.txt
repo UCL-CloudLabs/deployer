@@ -3,4 +3,4 @@ Flask-WTF
 azure
 python-terraform
 pytest-flask
-hikunator
+haikunator
