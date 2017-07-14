@@ -94,26 +94,31 @@ class Deployer:
         resources deployed and their status.
         '''
         tf_state = Path(self.tf_path, 'terraform.tfstate')
-        with open(tf_state) as f:
-            tf_data = json.load(f)
-        try:
-            resource_label = tf_data['modules'][0]['resources'][resource]
-        except KeyError:
-            print("Resource {} not found in Terraform state. The available"
-                  "resources for destroying are {}.".format(
-                   ', '.join([r for r in tf_data['modules'][0]['resources']])))
-            # TODO raise
-            return
 
-        return_code, stdout, stderr = self.tf.destroy(resource)
+        if tf_state.exists():
+            with open(tf_state) as f:
+                tf_data = json.load(f)
+            try:
+                resource_label = tf_data['modules'][0]['resources'][resource]
+            except KeyError:
+                print("Resource not found in Terraform state. The available "
+                      "resources for destroying are {}.".format(
+                       ', '.join(
+                            [r for r in tf_data['modules'][0]['resources']])))
+                # TODO raise
+                return
 
-        if return_code == 0:  # All went well
-            return ("Resource {} destroyed successfull".format(resource))
-        else:
-            # TODO raise
-            return ("Something went wrong when destroying {}: {}".format(
+            return_code, stdout, stderr = self.tf.destroy(resource)
+
+            if return_code == 0:  # All went well
+                return ("Resource {} destroyed successfull".format(resource))
+            else:
+                # TODO raise
+                return ("Something went wrong when destroying {}: {}".format(
                                                                     resource,
                                                                     stderr))
+        else:
+            print("Terraform state does not exist.")
 
     def refresh(self):
         '''
