@@ -1,8 +1,7 @@
 import json
 from .host import Host
 from python_terraform import Terraform
-from flask import render_template
-from jinja2 import TemplateNotFound
+from jinja2 import Template, TemplateNotFound, Environment, FileSystemLoader
 from pathlib import Path
 
 
@@ -23,6 +22,7 @@ class Deployer:
         Set python-terraform's instance with appropriate full path working dir.
         '''
         p = Path(app_path, "deployer", "terraform")
+        self.app_path = app_path
         self.tf_path = p.absolute()
         print(self.tf_path)
         self.tf = Terraform(working_dir=self.tf_path)
@@ -34,11 +34,10 @@ class Deployer:
         folder.
         '''
         # try:
-        # Flask's render_template always looks for templates in app templates
-        # folder
-        rendered_template = render_template("terraform-main.tf_template",
-                                            host=host)
-        # except TemplateNotFound:
+        j2_env = Environment(loader=FileSystemLoader(str(self.tf_path)))
+        rendered_template = j2_env.get_template(
+                                    'terraform.tf_template').render(host=host)
+        # # except TemplateNotFound:
         #     print("Template terraform-main.tf_template not found in {}."
         #               .format(template_path))
         #     return
@@ -84,7 +83,7 @@ class Deployer:
                                                                         )
                     )
 
-    def destroy(self, resource):
+    def destroy(self, resource=None):
         '''
         Deletes given Terraform resource.
         It has to make sure there is a Terraform state containing the resource
@@ -96,19 +95,21 @@ class Deployer:
         tf_state = Path(self.tf_path, 'terraform.tfstate')
 
         if tf_state.exists():
-            with open(tf_state) as f:
-                tf_data = json.load(f)
-            try:
-                resource_label = tf_data['modules'][0]['resources'][resource]
-            except KeyError:
-                print("Resource not found in Terraform state. The available "
-                      "resources for destroying are {}.".format(
-                       ', '.join(
-                            [r for r in tf_data['modules'][0]['resources']])))
-                # TODO raise
-                return
-
-            return_code, stdout, stderr = self.tf.destroy(resource)
+            if resource:
+                with open(tf_state) as f:
+                    tf_data = json.load(f)
+                try:
+                    resource_label = tf_data['modules'][0]['resources'][resource]
+                except KeyError:
+                    print("Resource not found in Terraform state. The available "
+                          "resources for destroying are {}.".format(
+                           ', '.join(
+                                [r for r in tf_data['modules'][0]['resources']])))
+                    # TODO raise
+                    return
+                return_code, stdout, stderr = self.tf.destroy(resource_label)
+            else:
+                return_code, stdout, stderr = self.tf.destroy()
 
             if return_code == 0:  # All went well
                 return ("Resource {} destroyed successfull".format(resource))

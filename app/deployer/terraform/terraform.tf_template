@@ -1,0 +1,142 @@
+# Configure Azure provider
+provider "azurerm" {
+  subscription_id = "${var.azure_subscription_id}"
+  client_id       = "${var.azure_client_id}"
+  client_secret   = "${var.azure_client_secret}"
+  tenant_id       = "${var.azure_tenant_id}"
+}
+
+# create a resource group if it doesn't exist
+resource "azurerm_resource_group" "rg" {
+    name = "{{host.name}}rg"
+    location = "ukwest"
+}
+
+# create virtual network
+resource "azurerm_virtual_network" "vnet" {
+    name = "tfvnet"
+    address_space = ["10.0.0.0/16"]
+    location = "ukwest"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+}
+
+# create subnet
+resource "azurerm_subnet" "subnet" {
+    name = "tfsub"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+    virtual_network_name = "${azurerm_virtual_network.vnet.name}"
+    address_prefix = "10.0.2.0/24"
+    #network_security_group_id = "${azurerm_network_security_group.nsg.id}"
+}
+
+# create public IPs
+resource "azurerm_public_ip" "ip" {
+    name = "tfip"
+    location = "ukwest"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+    public_ip_address_allocation = "dynamic"
+    domain_name_label = "{{host.dnsname}}"
+
+    tags {
+        environment = "staging"
+    }
+}
+
+# create network interface
+resource "azurerm_network_interface" "ni" {
+    name = "tfni"
+    location = "ukwest"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+
+    ip_configuration {
+        name = "ipconfiguration"
+        subnet_id = "${azurerm_subnet.subnet.id}"
+        private_ip_address_allocation = "static"
+        private_ip_address = "10.0.2.5"
+        public_ip_address_id = "${azurerm_public_ip.ip.id}"
+    }
+}
+
+# create storage account
+resource "azurerm_storage_account" "storage" {
+    name = "{{host.name}}storage"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+    location = "ukwest"
+    account_type = "Standard_LRS"
+
+    tags {
+        environment = "staging"
+    }
+}
+
+# create storage container
+resource "azurerm_storage_container" "storagecont" {
+    name = "vhd"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+    storage_account_name = "${azurerm_storage_account.storage.name}"
+    container_access_type = "private"
+    depends_on = ["azurerm_storage_account.storage"]
+}
+
+
+
+# create virtual machine
+resource "azurerm_virtual_machine" "vm" {
+    name = "{{host.name}}vm"
+    location = "ukwest"
+    resource_group_name = "${azurerm_resource_group.rg.name}"
+    network_interface_ids = ["${azurerm_network_interface.ni.id}"]
+    vm_size = "Standard_A0"
+
+    storage_image_reference {
+        publisher = "Canonical"
+        offer = "UbuntuServer"
+        sku = "16.04-LTS"
+        version = "latest"
+    }
+
+    storage_os_disk {
+        name = "myosdisk"
+        vhd_uri = "${azurerm_storage_account.storage.primary_blob_endpoint}${azurerm_storage_container.storagecont.name}/myosdisk.vhd"
+        caching = "ReadWrite"
+        create_option = "FromImage"
+    }
+
+    os_profile {
+        computer_name = "{{host.name}}"
+        admin_username = "{{host.username}}"
+        admin_password = "{{host.passwd}}"
+    }
+
+    os_profile_linux_config {
+      disable_password_authentication = false
+      ssh_keys = [{
+        path     = "/home/{{host.username}}/.ssh/authorized_keys"
+        key_data = "{{host.public_key}}"
+      }]
+    }
+
+    connection {
+        host = "{{host.dnsname}}.ukwest.cloudapp.azure.com"
+        user = "{{host.username}}"
+        type = "ssh"
+        private_key = "${file("{{host.private_key_path}}")}"
+        timeout = "1m"
+        agent = true
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+          "sudo apt-get update",
+          "sudo apt-get install docker.io -y",
+          "git clone https://github.com/UCL-CloudLabs/Docker-sample.git",
+          "cd Docker-sample",
+          "sudo docker build -t hello-flask .",
+          "sudo docker run -d -p 5000:5000 hello-flask"
+        ]
+    }
+
+    tags {
+        environment = "staging"
+    }
+}
