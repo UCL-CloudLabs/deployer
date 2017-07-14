@@ -22,7 +22,7 @@ class Deployer:
         '''
         Set python-terraform's instance with appropriate full path working dir.
         '''
-        p = Path(app_path, "app", "deployer", "terraform")
+        p = Path(app_path, "deployer", "terraform")
         self.tf_path = p.absolute()
         print(self.tf_path)
         self.tf = Terraform(working_dir=self.tf_path)
