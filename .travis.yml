@@ -44,3 +44,8 @@ before_install:
     chmod +x ./terraform/terraform ;
     export PATH=$PWD/terraform:$PATH ;
     terraform version ;
+  - |
+    cd test
+    openssl aes-256-cbc -K $encrypted_fe5905751aa5_key -iv $encrypted_fe5905751aa5_iv -in secrets.tar.enc -out secrets.tar -d
+    tar xvf secrets.tar
+    cd -

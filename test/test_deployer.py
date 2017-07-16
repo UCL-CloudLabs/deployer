@@ -21,14 +21,17 @@ class TestDeployer:
         assert self.d.tf_path == Path('app/deployer/terraform').absolute()
 
     def teardown_method(self):
-        #self.d.destroy(self.resource_name)
+        # self.d.destroy(self.resource_name)
         self.d.destroy()
 
     def _create_host(self):
         username = 'testuser'
         passwd = 'Password123'
-        public_key = 'ssh-rsa aaaaaa email@host.com'
-        private_key_path = '~/.ssh/id_rsa'
+        # Read public key contents from encrypted file, ignore newline
+        with open(Path('test/id_rsa_travis_azure.pub').absolute()) as f:
+            public_key = f.read().rstrip('\n')
+        # Path to private key
+        private_key_path = Path('test/id_rsa_travis_azure').absolute()
         self.host = Host(name=self.resource_name, dnsname=self.dnsname,
                          username=username, passwd=passwd,
                          public_key=public_key,
