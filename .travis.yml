@@ -35,3 +35,14 @@ env:
     - secure: "QV34tb4qXlA/3xooxEeQgvVrmhZt83n1/GWjI82F9LiQ/bhMIqjmVPTheKHqIPHliSMfhExhArzOsLlBvowCEQESPYNzywxiTKCQJs79jv+A0UFL3kTbKtSFfrnd3dLklK2URTzxsflLRy3TGccVib5WSm6+sHAr6Juzn0+B6hnSwBdf7O960aGibLnUhH7FWwRq9D/qDFlUA5gBr3rWJkTAaR0zOpp7w5bENqPr2qB4ulfna694xvV77msbr2tlnEhWPw5KM3vI0nPLdr74nnKlvNf0QzJCQEGJ/mVSFt7Hkd7ojnFTLUyH1nxsj5o4kMqP3In/dG8USPOaISLAejHxgX5rKQMaKL+8ekWt4QBCi4VTul/IvW8HusLa3MlG1j4n1WNGMq1snhCoT6bonJqSplJ9AeVp5Vy3gclcTOn3AWDI+GzyKw/+3vUw/sw51g/4SUNYETVluf35iy/4T/8liSljeYisG6LUPx58Ar4qX28q5vGfy2b+EAhS94+y1OwCSnvH69PfbwedNJHTNQeZDN5AdmGApLNNyuTfOB4Or+Yhzb3tmlHyxPY7cua8HAAzEaQ9Tk3tAKXLuUTS2qZ2ayNp8CSDgFCl+hTele8bkm3YzxNwiQjQnXEA2acZbeCk2fjAEntBffml7D6gemge6O/4OLTheNbWiqb6SMk="
     # TF_VAR_azure_subscription_id
     - secure: "On1H4dQgvvIDUwnjULtd5/j8jrIgT+rBdtpWEPoRy51zQAAhiJVFGLO64GnH4Iufy8bABPsYhblEu0WnvUdUIuPxHAF5BV0QQl67Dhx9/HK0sUB0Tg0u+X7RnD5sFkFs9beN0NkO+Bkzgz1N9kQtRVDMVuUgSbH1vbTomHnKOdjITqO+hqbG3FOz3DWubQZzg4m9H5APtTsACQkanutPZx99dOYOrJSYdFaqzvgwEFzv4ukWYaKtMuwwnelLvTGJujzpZmpl1DEVZ3ARzk7QTrPbyfwsoMPqu1tDsQ9MChpRVQKNcaNxPRheLp/4UfWwU6PsHLfnAhjJTgdLxxAw0bqHh24hOTTrKNJ8c7juyr2sQXEKWW7QjvBzXk7pl8s1fhylRtt1rbPcqoCGzps/+fysvip4Zfqfc4ymbmRlClTuxUaD0aE3qw4WE+cPmK5Ardb054IYrGJsaXvfhf5smZ5dNtIJdLn5Pl6LgaLMWBhsrIHMMPSIG719XL4Po0OdSuu7ERLFcqxEjdFPiQGDk+MBl2oL2T/MxcfRe4DXuSxQCqE4EqD6YdbPItYHfkfJQuwLqJZi516TBzrJ8triGh5Xu2jMU0V7RkiTj9wb4FL/orT+gIatj5d05q7HrluExrPYIIJ/jDHMJBowarGpCtdLudWvUW9/EkRDbmGRuAo="
+
+before_install:
+  - if ! terraform version ; then
+      curl -sSL
+           -o terraform.zip
+           "https://releases.hashicorp.com/terraform/0.9.0/terraform_0.9.0_linux_amd64.zip" ;
+      unzip terraform.zip ;
+      mv -v terraform "${HOME}/bin/terraform" ;
+      chmod +x "${HOME}/bin/terraform" ;
+      terraform version ;
+    fi
