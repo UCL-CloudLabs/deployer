@@ -99,15 +99,15 @@ class Deployer:
                 with open(tf_state) as f:
                     tf_data = json.load(f)
                 try:
-                    resource_label = tf_data['modules'][0]['resources'][resource]
+                    res_label = tf_data['modules'][0]['resources'][resource]
                 except KeyError:
-                    print("Resource not found in Terraform state. The available "
-                          "resources for destroying are {}.".format(
+                    print("Resource not found in Terraform state. The "
+                          "available resources for destroying are {}.".format(
                            ', '.join(
-                                [r for r in tf_data['modules'][0]['resources']])))
+                             [r for r in tf_data['modules'][0]['resources']])))
                     # TODO raise
                     return
-                return_code, stdout, stderr = self.tf.destroy(resource_label)
+                return_code, stdout, stderr = self.tf.destroy(res_label)
             else:
                 return_code, stdout, stderr = self.tf.destroy()
 
