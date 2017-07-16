@@ -21,7 +21,8 @@ class TestDeployer:
         assert self.d.tf_path == Path('app/deployer/terraform').absolute()
 
     def teardown_method(self):
-        self.d.destroy(self.resource_name)
+        #self.d.destroy(self.resource_name)
+        self.d.destroy()
 
     def _create_host(self):
         username = 'testuser'
