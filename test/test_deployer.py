@@ -1,6 +1,6 @@
 from app.deployer.deployer import Deployer
 from app.deployer.host import Host
-from pathlib import Path, PosixPath
+from pathlib import Path
 from haikunator import Haikunator
 
 
