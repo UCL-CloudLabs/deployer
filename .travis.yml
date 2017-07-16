@@ -39,8 +39,8 @@ env:
 before_install:
   - |
     curl -sSL -o terraform.zip "https://releases.hashicorp.com/terraform/0.9.0/terraform_0.9.0_linux_amd64.zip" ;
-    unzip terraform.zip ;
-    mv -v terraform "${HOME}/bin/terraform" ;
-    chmod +x "${HOME}/bin/terraform" ;
+    mkdir terraform;
+    unzip terraform.zip -d terraform/ ;
+    chmod +x ./terraform/terraform ;
+    export PATH=$PWD/terraform:$PATH ;
     terraform version ;
-    
