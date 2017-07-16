@@ -1,6 +1,5 @@
 **/__pycache__
 **/.cache
 **.pyc
-app/deployer/terraform/variables.tf
 **tfstate**
-app/deployer/terraform/*.tf
+app/deployer/terraform/terraform.tf
