@@ -24,7 +24,6 @@ class Deployer:
         p = Path(app_path, "deployer", "terraform")
         self.app_path = app_path
         self.tf_path = p.absolute()
-        print(self.tf_path)
         self.tf = Terraform(working_dir=self.tf_path)
 
     def _render(self, host):
@@ -93,7 +92,6 @@ class Deployer:
         resources deployed and their status.
         '''
         tf_state = Path(self.tf_path, 'terraform.tfstate')
-        print(self.tf_path, tf_state)
 
         if tf_state.exists():
             if resource:
@@ -108,9 +106,14 @@ class Deployer:
                              [r for r in tf_data['modules'][0]['resources']])))
                     # TODO raise
                     return
-                return_code, stdout, stderr = self.tf.destroy(res_label)
+                return_code, stdout, stderr = self.tf.destroy(
+                                                        res_label,
+                                                        capture_output=False
+                                                        )
             else:
-                return_code, stdout, stderr = self.tf.destroy()
+                print("Destroying all resources...")
+                return_code, stdout, stderr = self.tf.destroy(
+                                                        capture_output=False)
 
             if return_code == 0:  # All went well
                 return ("Resource {} destroyed successfully.".format(resource))
