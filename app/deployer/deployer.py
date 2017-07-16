@@ -93,6 +93,7 @@ class Deployer:
         resources deployed and their status.
         '''
         tf_state = Path(self.tf_path, 'terraform.tfstate')
+        print(self.tf_path, tf_state)
 
         if tf_state.exists():
             if resource:
@@ -112,14 +113,14 @@ class Deployer:
                 return_code, stdout, stderr = self.tf.destroy()
 
             if return_code == 0:  # All went well
-                return ("Resource {} destroyed successfull".format(resource))
+                return ("Resource {} destroyed successfully.".format(resource))
             else:
                 # TODO raise
                 return ("Something went wrong when destroying {}: {}".format(
                                                                     resource,
                                                                     stderr))
         else:
-            print("Terraform state does not exist.")
+            print("Terraform state does not exist in {}".format(tf_state))
 
     def refresh(self):
         '''
