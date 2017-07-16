@@ -20,7 +20,6 @@ script:
   - |
     # Check if this is the PEP8 test instance and run pep8
     if [ -z "$PEP8" ]; then
-      # TODO: sort out dependencies so I can just run py.test
       PYTHONPATH=. py.test -s
     else
       pycodestyle ./
