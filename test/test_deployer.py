@@ -1,3 +1,4 @@
+import urllib
 from app.deployer.deployer import Deployer
 from app.deployer.host import Host
 from pathlib import Path
@@ -17,8 +18,8 @@ class TestDeployer:
     def test_deployer(self):
         host = self._create_host()
         self.d.deploy(self.host)
-        # ping machine? Get URL from state.
-        assert self.d.tf_path == Path('app/deployer/terraform').absolute()
+        url = "http://{}.ukwest.cloudapp.azure.com".format(self.dnsname)
+        assert 200 == urllib.urlopen(url).getcode()
 
     def teardown_method(self):
         # self.d.destroy(self.resource_name)
