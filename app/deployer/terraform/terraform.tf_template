@@ -122,7 +122,7 @@ resource "azurerm_virtual_machine" "vm" {
         type = "ssh"
         private_key = "${file("{{host.private_key_path}}")}"
         timeout = "1m"
-        agent = true
+        agent = false
     }
 
     provisioner "remote-exec" {
