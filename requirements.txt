@@ -4,3 +4,4 @@ azure
 python-terraform
 pytest-flask
 haikunator
+pathlib
