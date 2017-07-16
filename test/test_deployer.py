@@ -1,4 +1,4 @@
-import urllib
+from urllib.request import urlopen
 from app.deployer.deployer import Deployer
 from app.deployer.host import Host
 from pathlib import Path
@@ -19,7 +19,7 @@ class TestDeployer:
         host = self._create_host()
         self.d.deploy(self.host)
         url = "http://{}.ukwest.cloudapp.azure.com".format(self.dnsname)
-        assert 200 == urllib.urlopen(url).getcode()
+        assert 200 == urlopen(url).getcode()
 
     def teardown_method(self):
         # self.d.destroy(self.resource_name)

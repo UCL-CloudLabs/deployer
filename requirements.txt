@@ -5,3 +5,4 @@ python-terraform
 pytest-flask
 haikunator
 pathlib
+urllib
