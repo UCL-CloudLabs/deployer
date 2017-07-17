@@ -19,7 +19,7 @@ class TestDeployer:
     def test_deployer(self):
         host = self._create_host()
         self.d.deploy(self.host)
-        sleep(30)
+        sleep(10)
         url = "http://{}.ukwest.cloudapp.azure.com:5000".format(self.dnsname)
         response = requests.get(url)
         assert 200 == response.status_code
