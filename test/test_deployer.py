@@ -1,4 +1,4 @@
-from urllib.request import urlopen
+import requests
 from time import sleep
 from app.deployer.deployer import Deployer
 from app.deployer.host import Host
@@ -20,15 +20,10 @@ class TestDeployer:
         host = self._create_host()
         self.d.deploy(self.host)
         url = "http://{}.ukwest.cloudapp.azure.com:5000".format(self.dnsname)
-        print('Checking if {} is live... '.format(url))
-        print('sleeping')
-        sleep(30)
-        response = requests(url)
-        print('Website returned code {}.'.format(response.status_code))
+        response = requests.get(url)
         assert 200 == response.status_code
 
     def teardown_method(self):
-        # self.d.destroy(self.resource_name)
         self.d.destroy()
 
     def _create_host(self):
