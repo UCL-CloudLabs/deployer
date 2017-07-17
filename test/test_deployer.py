@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+from time import sleep
 from app.deployer.deployer import Deployer
 from app.deployer.host import Host
 from pathlib import Path
