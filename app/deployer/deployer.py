@@ -1,8 +1,8 @@
-import os
+import json
 from .host import Host
 from python_terraform import Terraform
-from flask import render_template
-from jinja2 import TemplateNotFound
+from jinja2 import Template, TemplateNotFound, Environment, FileSystemLoader
+from pathlib import Path
 
 
 class Deployer:
@@ -17,14 +17,13 @@ class Deployer:
     TODO: For now these are stored in variables.tf, but they'll be moved to an
     Azure key vault.
     '''
-    def __init__(self, instance_path):
+    def __init__(self, app_path=Path.cwd()):
         '''
-        Find app's root path based in instance path.
         Set python-terraform's instance with appropriate full path working dir.
         '''
-        self.app_path = os.path.sep.join(instance_path.split(os.path.sep)[:-1])
-        self.tf_path = os.path.sep.join(
-                            [self.app_path, "app", "deployer", "terraform"])
+        p = Path(app_path, "deployer", "terraform")
+        self.app_path = app_path
+        self.tf_path = p.absolute()
         self.tf = Terraform(working_dir=self.tf_path)
 
     def _render(self, host):
@@ -33,13 +32,11 @@ class Deployer:
         need to save the rendered template on a tf file in the terraform
         folder.
         '''
-        # Build full path to Terraform template
-        template_path = os.path.sep.join(
-                                [self.tf_path, "terraform-main.tf_template"])
         # try:
-        rendered_template = render_template("terraform-main.tf_template",
-                                            host=host)
-        # except TemplateNotFound:
+        j2_env = Environment(loader=FileSystemLoader(str(self.tf_path)))
+        rendered_template = j2_env.get_template(
+                                    'terraform.tf_template').render(host=host)
+        # # except TemplateNotFound:
         #     print("Template terraform-main.tf_template not found in {}."
         #               .format(template_path))
         #     return
@@ -48,7 +45,7 @@ class Deployer:
         print(rendered_template)
 
         # try:
-        with open("{}/terraform.tf".format(self.tf_path), "w") as f:
+        with open(Path(self.tf_path, "terraform.tf"), "w") as f:
                 f.write(rendered_template)
         # except:
         #     # TODO: replace with logging and maybe raise?
@@ -79,7 +76,65 @@ class Deployer:
                                                                 host.dnsname,
                                                                 host.dnsname))
         else:
+            # TODO raise
             return ("Something went wrong with the deployment: {}".format(
                                                                         stderr
                                                                         )
                     )
+
+    def destroy(self, resource=None):
+        '''
+        Deletes given Terraform resource.
+        It has to make sure there is a Terraform state containing the resource
+        that will be destroyed.
+        After applying a plan, Terraform saves the state on
+        "terraform.tfstate". This is a JSON file that contains the list of
+        resources deployed and their status.
+        '''
+        tf_state = Path(self.tf_path, 'terraform.tfstate')
+
+        if tf_state.exists():
+            if resource:
+                with open(tf_state) as f:
+                    tf_data = json.load(f)
+                try:
+                    res_label = tf_data['modules'][0]['resources'][resource]
+                except KeyError:
+                    print("Resource not found in Terraform state. The "
+                          "available resources for destroying are {}.".format(
+                           ', '.join(
+                             [r for r in tf_data['modules'][0]['resources']])))
+                    # TODO raise
+                    return
+                return_code, stdout, stderr = self.tf.destroy(
+                                                        res_label,
+                                                        capture_output=False
+                                                        )
+            else:
+                print("Destroying all resources...")
+                return_code, stdout, stderr = self.tf.destroy(
+                                                        capture_output=False)
+
+            if return_code == 0:  # All went well
+                return ("Resource {} destroyed successfully.".format(resource))
+            else:
+                # TODO raise
+                return ("Something went wrong when destroying {}: {}".format(
+                                                                    resource,
+                                                                    stderr))
+        else:
+            print("Terraform state does not exist in {}".format(tf_state))
+
+    def refresh(self):
+        '''
+        User Terraform to update the current state file against real resources.
+        '''
+        # First refresh state
+        return_code, stdout, stderr = self.tf.refresh()
+
+        if return_code == 0:  # All went well
+            return ("Local Terraform state successfully updated.")
+        else:
+            # TODO raise
+            return ("Something went wrong when updating state: {}".format(
+                                                                       stderr))

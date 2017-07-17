@@ -20,9 +20,9 @@ In order to run this PoC you'll need to:
     flask run
     ```
 1. Open browser on URL returned by previous command and input parameters to deploy a sample webapp on your cloud subscription. E.g.
-  * hostname: "mywebserver"
-  * domain prefix: "mywebapp"
-  * username: "MyUsername"
-  * password: "MyPasswd1234"
-  * public key: "ssh-rsa ..."
+    * hostname: "mywebserver"
+    * domain prefix: "mywebapp"
+    * username: "MyUsername"
+    * password: "MyPasswd1234"
+    * public key: "ssh-rsa ..."
 1. The details to ssh into the machine and browse your website will appear after a successful deployment.

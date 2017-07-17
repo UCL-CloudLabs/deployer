@@ -2,3 +2,6 @@ flask
 Flask-WTF
 azure
 python-terraform
+pytest-flask
+haikunator
+pathlib

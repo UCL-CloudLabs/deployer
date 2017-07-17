@@ -1,0 +1,51 @@
+sudo: false
+
+language: python
+
+matrix:
+  include:
+    - python: '3.6'
+    - python: '3.6'
+      env: PEP8=1
+
+install:
+  - pip install -r requirements.txt
+  - |
+    # Check if this is the PEP8 test instance and install pycodestyle
+    if ! [ -z "$PEP8" ]; then
+       pip install pycodestyle
+    fi
+
+script:
+  - |
+    # Check if this is the PEP8 test instance and run pep8
+    if [ -z "$PEP8" ]; then
+      PYTHONPATH=. py.test -s
+    else
+      pycodestyle ./
+    fi
+
+env:
+  global:
+    # TF_VAR_azure_client_id
+    - secure: "VG+Y5shvaikVcwsMwLQHCOOFVBPOWGyCwJd6cedNnow8o+YEjYm9/9IRDBK3i89io3V6lcMFMy13PJNgJaBRLyrkEwNMjb5Mvsj04o4XweAmscMWO3eUcPRLJ81FmeataZCjP1ZF415cZAhWvL8B0htC7u1wnD36kNtVYbz2cIT6lWjQcsTOQoty4inRKkP24PxQhtZAmOLumPrSiqm3huRl/b0mJVLtNRFvr+eSZ84X2H6ZiyGrbivul8iyaioTzUb/foUvdeOGEdNxGnYf4U7zquM3c+hzxPIn1r64KeTQz10daPQ/VEwlcSVCGYt/6pPf8zjFs11JVnfqSa2YixMd9S/u4tZ3qA/NG9NIFnQruz2ITRWPOktL4b0blht3jAMXESzcU8/x3htYXPy9lP7fJmX3ThCf33dhMeOIyJ6IEgSAfr5UmWy9ckgZywNNyme9QiGj/o9WS237TNrNgPrnIHmiCAFuNoExhR3RVFvPRvyNX4PLW0gL7kjmpH3Hi2jKXYidu7/QS+of6jz47T5pAcdHbU/Tb+CBEI4B+W2Pu/yZaJg2iuUSO0cFtbet0NDj9hOQaun06qg0Y+SxMb4/KU2/ao8WY574bT6a+rnWsYj+pJHQoUq8XfXcCiKVw7Xx150RhBsv4CwQMDwHaI/xLUE6u/G/BDvukl9p/CU="
+    # TF_VAR_azure_tenant_id
+    - secure: "qx1orWESvufjLSdAOu4IJnenb6EpoSbranE+VjZJfD7qhR1mO6bJWzCpNnCqSK3i/wkM2mXYm5m3kMqoLhH1cctzrSEuQuuKzeeubYxEPzBn8pjeyC4u6EKiYy2goU7Dn2JcT87tv4TMcMW8mMrA+jQTWJvbj0DxHTEWP7tygLaCcygS5tb1sfgwj9KcpJmuCOzX9V6px5uC5e6yGzysOIKkHqYx87QgeKwFvJCflAyhE2Jxgd70utZmFR2eZjdf1O5Y2FnBUx5RqfL47Fml/WC6zFmOeG+sQP0GIJW8Sgmi3JCBc3vJ/luEoAVYkiPzw0Yeyz4JZ2JAWXZsQaMesJ7elfa4ilu02dYTynH7E/JkyXHnsDfnGZK7QT/Kdf+47lrck/+aL6XJHPlx9nBqWgOZaY2OSiph4X50i5G2jhPU7PV7N2vmkGih/KWGy00vpCwLN+sw9r+IbPrIoGJ1l83pG5ZNhUcvdy6ccbRnXvMHU20+fQ3kFrhFM6eb3LmX6sQje3gTi0jRkFveiADhguvr+RDcG50RKM1IfRgVIa8a1mrX/crs5X4DpbcBkCNRSVEGBUP1+gpdxw5OATLcuABoAyEg9EniviElsignfHHDfZdVXAAP5wjpQOLpz2GcRZqUFRxHM1snhETA9Z+2fMOfXjwmO0EHCma6kpgxjAc="
+    # TF_VAR_azure_client_secret
+    - secure: "QV34tb4qXlA/3xooxEeQgvVrmhZt83n1/GWjI82F9LiQ/bhMIqjmVPTheKHqIPHliSMfhExhArzOsLlBvowCEQESPYNzywxiTKCQJs79jv+A0UFL3kTbKtSFfrnd3dLklK2URTzxsflLRy3TGccVib5WSm6+sHAr6Juzn0+B6hnSwBdf7O960aGibLnUhH7FWwRq9D/qDFlUA5gBr3rWJkTAaR0zOpp7w5bENqPr2qB4ulfna694xvV77msbr2tlnEhWPw5KM3vI0nPLdr74nnKlvNf0QzJCQEGJ/mVSFt7Hkd7ojnFTLUyH1nxsj5o4kMqP3In/dG8USPOaISLAejHxgX5rKQMaKL+8ekWt4QBCi4VTul/IvW8HusLa3MlG1j4n1WNGMq1snhCoT6bonJqSplJ9AeVp5Vy3gclcTOn3AWDI+GzyKw/+3vUw/sw51g/4SUNYETVluf35iy/4T/8liSljeYisG6LUPx58Ar4qX28q5vGfy2b+EAhS94+y1OwCSnvH69PfbwedNJHTNQeZDN5AdmGApLNNyuTfOB4Or+Yhzb3tmlHyxPY7cua8HAAzEaQ9Tk3tAKXLuUTS2qZ2ayNp8CSDgFCl+hTele8bkm3YzxNwiQjQnXEA2acZbeCk2fjAEntBffml7D6gemge6O/4OLTheNbWiqb6SMk="
+    # TF_VAR_azure_subscription_id
+    - secure: "On1H4dQgvvIDUwnjULtd5/j8jrIgT+rBdtpWEPoRy51zQAAhiJVFGLO64GnH4Iufy8bABPsYhblEu0WnvUdUIuPxHAF5BV0QQl67Dhx9/HK0sUB0Tg0u+X7RnD5sFkFs9beN0NkO+Bkzgz1N9kQtRVDMVuUgSbH1vbTomHnKOdjITqO+hqbG3FOz3DWubQZzg4m9H5APtTsACQkanutPZx99dOYOrJSYdFaqzvgwEFzv4ukWYaKtMuwwnelLvTGJujzpZmpl1DEVZ3ARzk7QTrPbyfwsoMPqu1tDsQ9MChpRVQKNcaNxPRheLp/4UfWwU6PsHLfnAhjJTgdLxxAw0bqHh24hOTTrKNJ8c7juyr2sQXEKWW7QjvBzXk7pl8s1fhylRtt1rbPcqoCGzps/+fysvip4Zfqfc4ymbmRlClTuxUaD0aE3qw4WE+cPmK5Ardb054IYrGJsaXvfhf5smZ5dNtIJdLn5Pl6LgaLMWBhsrIHMMPSIG719XL4Po0OdSuu7ERLFcqxEjdFPiQGDk+MBl2oL2T/MxcfRe4DXuSxQCqE4EqD6YdbPItYHfkfJQuwLqJZi516TBzrJ8triGh5Xu2jMU0V7RkiTj9wb4FL/orT+gIatj5d05q7HrluExrPYIIJ/jDHMJBowarGpCtdLudWvUW9/EkRDbmGRuAo="
+
+before_install:
+  - |
+    curl -sSL -o terraform.zip "https://releases.hashicorp.com/terraform/0.9.11/terraform_0.9.11_linux_amd64.zip" ;
+    mkdir terraform;
+    unzip terraform.zip -d terraform/ ;
+    chmod +x ./terraform/terraform ;
+    export PATH=$PWD/terraform:$PATH ;
+    terraform version ;
+  - |
+    cd test
+    openssl aes-256-cbc -K $encrypted_fe5905751aa5_key -iv $encrypted_fe5905751aa5_iv -in secrets.tar.enc -out secrets.tar -d
+    tar xvf secrets.tar
+    cd -
