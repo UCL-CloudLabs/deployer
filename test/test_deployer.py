@@ -44,7 +44,6 @@ class TestDeployer:
         '''
         self.d.destroy()
 
-
     def _haikunate(self, delimiter=''):
         '''
         Helper method to create random strings to use on the Terraform file.
@@ -68,6 +67,5 @@ class TestDeployer:
         # Path to private key
         private_key_path = Path('test/id_rsa_travis_azure').absolute()
         return Host(name=self.resource_name, dnsname=self.dnsname,
-                         username=username, passwd=passwd,
-                         public_key=public_key,
-                         private_key_path=private_key_path)
+                    username=username, passwd=passwd, public_key=public_key,
+                    private_key_path=private_key_path)
