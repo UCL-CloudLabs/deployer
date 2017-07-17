@@ -20,8 +20,11 @@ class TestDeployer:
         self.d.deploy(self.host)
         url = "http://{}.ukwest.cloudapp.azure.com:5000".format(self.dnsname)
         print('Checking if {} is live... '.format(url))
-        print('Website returned code {}.'.format(urlopen(url).getcode()))
-        assert 200 == urlopen(url).getcode()
+        print('sleeping')
+        sleep(30)
+        response = requests(url)
+        print('Website returned code {}.'.format(response.status_code))
+        assert 200 == response.status_code
 
     def teardown_method(self):
         # self.d.destroy(self.resource_name)
