@@ -5,3 +5,4 @@
 app/deployer/terraform/terraform.tf
 test/secrets.tar
 test/id*
+test/utils
