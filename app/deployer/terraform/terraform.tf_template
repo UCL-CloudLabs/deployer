@@ -129,8 +129,8 @@ resource "azurerm_virtual_machine" "vm" {
         inline = [
           "sudo apt-get update",
           "sudo apt-get install docker.io -y",
-          "git clone -b levine https://github.com/UCL-CloudLabs/Docker-sample.git",
-          "cd Docker-sample",
+          "git clone -b levine https://github.com/UCL-CloudLabs/docker-sample.git",
+          "cd docker-sample",
           "sudo docker build -t research-webapp . ",
           "sudo docker run -d -e AZURE_URL={{host.dnsname}}.ukwest.cloudapp.azure.com -p 5006:5006 research-webapp"
         ]
