@@ -5,4 +5,3 @@ python-terraform
 pytest-flask
 haikunator
 pathlib
-flask-restplus
