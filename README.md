@@ -7,6 +7,10 @@ In order to run this PoC you'll need to:
 
 1. Clone this repo.
 1. Make sure you have Python3 installed in your system.
+1. Install Terraform following [these instructions](https://www.terraform.io/intro/getting-started/install.html). I'm on a Mac, so I had to:
+    1. Download appropriate zip (in my case version 0.9.11)
+    1. Unzip and extract binary.
+    1. Modify PATH so it points to terraform's binary.
 1. Install project's requirements:
     `pip install -r requirements.txt`
 1. You'll need `variables.tf`, a Terraform file containing the values of the cloud provider secrets needed to access your subscription. There's a template of this file in [app/deployer/terraform/samples](app/deployer/terraform/samples). You'll need to place this file once it's filled in with appropriate details in `Deployer/app/deployer/terraform/variables.tf`.
